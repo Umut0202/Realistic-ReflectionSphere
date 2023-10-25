@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <title>REALISTIC REFLECTION SPHERE</title>
+  </head>
+  <body>
+    <!-- Including necessary Three.js library -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script>
+      let scene, camera, renderer, sphereCamera; // Declaring necessary variables
+      // Initializing the 3D environment
+      function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(
+          70,
+          window.innerWidth / window.innerHeight,
+          1,
+          5000
+        );
+        camera.position.set(0, 400, 1000);
+
+        // Creating a WebGL renderer and appending it to the HTML body
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Creating controls for camera movements
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = false;
+
+        // Loading cube textures for the scene background
+        let urls = [
+          "posx.jpg", //positiv x
+          "negx.jpg", //negatif x
+          "posy.jpg",
+          "negy.jpg",
+          "posz.jpg",
+          "negz.jpg",
+        ];
+        let loader = new THREE.CubeTextureLoader();
+        scene.background = loader.load(urls);
+
+        // Creating a cube camera for realistic reflection
+        sphereCamera = new THREE.CubeCamera(1, 1000, 500);
+        sphereCamera.position.set(0, 100, 0);
+        scene.add(sphereCamera);
+
+        // Applying material to the sphere for reflection effect
+        let sphereMaterial = new THREE.MeshBasicMaterial({
+          envMap: sphereCamera.renderTarget,
+        });
+        let sphereGeo = new THREE.SphereGeometry(350, 50, 50);
+        let sphere = new THREE.Mesh(sphereGeo, sphereMaterial);
+        sphere.position.set(0, 100, 0);
+        scene.add(sphere);
+
+        render(); // Rendering the scene
+      }
+      // Function to continuously render the scene
+      function render() {
+        renderer.render(scene, camera);
+        sphereCamera.updateCubeMap(renderer, scene);
+        requestAnimationFrame(render);
+      }
+      init(); // Initializing the 3D environment
+    </script>
+  </body>
+</html>
